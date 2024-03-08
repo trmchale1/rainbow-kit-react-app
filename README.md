@@ -13,5 +13,8 @@ I want to extend wallet functionallity in the following ways
 
 Complete the tasks above, then integrate this repo into timmchale.co 
 
+To deploy we need to use a library called hardhat.
 
+https://hardhat.org/hardhat-runner/docs/getting-started
 
+Happy Hunting tommorrow!
