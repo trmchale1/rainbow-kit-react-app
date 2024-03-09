@@ -18,11 +18,13 @@
     "wagmi": "^2.5.5"
   },
   "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox-viem": "^2.0.0",
     "@types/node": "^18.19.3",
     "@types/react": "^18.2.43",
     "eslint": "^8.15.0",
     "eslint-config-next": "^14.0.4",
     "hardhat": "^2.21.0",
+    "ts-node": "^10.9.2",
     "typescript": "^5.0.4"
   }
 }
