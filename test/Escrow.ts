@@ -1,5 +1,4 @@
 import {
-  time,
   loadFixture,
 } from "@nomicfoundation/hardhat-toolbox/network-helpers";
 import { anyValue } from "@nomicfoundation/hardhat-chai-matchers/withArgs";
@@ -12,15 +11,14 @@ describe("TimsEscrow", function () {
   // and reset Hardhat Network to that snapshot in every test.
   async function testingFixture() {
     const ONE_GWEI = 1_000_000_000;
-    const lockedAmount = ONE_GWEI;
-
+    
     // Contracts are deployed using the first signer/account by default
     const [owner, otherAccount] = await ethers.getSigners();
 
-    const TimsEscrow = await ethers.getContractFactory("TimsEscrow");
-    const escrow = await TimsEscrow.deploy();
+    const Escrow = await ethers.getContractFactory("Escrow");
+    const escrow = await Escrow.deploy();
 
-    return { escrow, lockedAmount, owner, otherAccount };
+    return { escrow, ONE_GWEI, owner, otherAccount };
   }
 
   // Wat this: const [owner, otherAccount] = await ethers.getSigners();
@@ -36,13 +34,13 @@ describe("TimsEscrow", function () {
     });
 
     it("Should receive and store the funds to lock", async function () {
-      const { escrow, lockedAmount } = await loadFixture(
+      const { escrow, ONE_GWEI } = await loadFixture(
         testingFixture
       );
         // This might not work, we might need to call deposit function, then test
-      escrow.escrowDeposit(lockedAmount);
+      escrow.deposit(ONE_GWEI);
       expect(await ethers.provider.getBalance(escrow.target)).to.equal(
-        lockedAmount
+        ONE_GWEI
       );
     });
 
@@ -53,8 +51,7 @@ describe("TimsEscrow", function () {
           testingFixture
         );
 
-        // We use lock.connect() to send a transaction from another account
-        await expect(escrow.connect(otherAccount).escrowWithdraw()).to.be.revertedWith(
+        await expect(escrow.connect(otherAccount).withdraw()).to.be.revertedWith(
           "You aren't the owner"
         );
       });
@@ -65,28 +62,28 @@ describe("TimsEscrow", function () {
         );
 
         // Transactions are sent using the first signer by default
-        await expect(escrow.connect(owner).escrowWithdraw()).not.to.be.reverted;
+        await expect(escrow.connect(owner).withdraw()).not.to.be.reverted;
       });
     });
 
     describe("Events", function () {
       it("Should emit an event on withdrawals", async function () {
-        const { escrow, lockedAmount, owner } = await loadFixture(
+        const { escrow, ONE_GWEI, owner } = await loadFixture(
           testingFixture
         );
 
-      await expect(escrow.connect(owner).escrowWithdraw())
+      await expect(escrow.connect(owner).withdraw())
           .to.emit(escrow, "Withdrawn")
-          .withArgs(owner, lockedAmount); // We accept any value as `when` arg
+          .withArgs(owner, ONE_GWEI); // We accept any value as `when` arg
       });
       it("Should emit an event on deposits", async function() {
-        const { escrow, lockedAmount, owner } = await loadFixture(
+        const { escrow, ONE_GWEI, owner } = await loadFixture(
           testingFixture
         );
 
-        await expect(escrow.connect(owner).escrowDeposit())
+        await expect(escrow.connect(owner).deposit())
           .to.emit(escrow, "Deposited")
-          .withArgs(owner, lockedAmount); // We accept any value as `when` arg
+          .withArgs(owner, ONE_GWEI); // We accept any value as `when` arg
       });
       })
     });
