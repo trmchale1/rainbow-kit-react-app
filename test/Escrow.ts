@@ -21,26 +21,22 @@ describe("TimsEscrow", function () {
     return { escrow, ONE_GWEI, owner, otherAccount };
   }
 
-  // Wat this: const [owner, otherAccount] = await ethers.getSigners();
-  // const Lock = await ethers.getContractFactory("TimsEscrow");
-  // hardhat fixtures, just an async function
-  // also we have describe ... it .. expect syntax
-
   describe("Deployment", function () {
     it("Should set the right owner", async function () {
       const { escrow, owner } = await loadFixture(testingFixture);
-
       expect(await escrow.owner()).to.equal(owner.address);
     });
 
-    it("Should receive and store the funds to lock", async function () {
+    it("Should deposit GWEI and this should be observable in the balance.", async function () {
       const { escrow, ONE_GWEI } = await loadFixture(
         testingFixture
       );
-        // This might not work, we might need to call deposit function, then test
-      escrow.deposit(ONE_GWEI);
-      expect(await ethers.provider.getBalance(escrow.target)).to.equal(
-        ONE_GWEI
+      await escrow.deposit({ value: ONE_GWEI });
+
+      const contractBalance = await escrow.balance();
+      
+      expect(contractBalance.toString()).to.equal(
+        ONE_GWEI.toString()
       );
     });
 
@@ -52,16 +48,17 @@ describe("TimsEscrow", function () {
         );
 
         await expect(escrow.connect(otherAccount).withdraw()).to.be.revertedWith(
-          "You aren't the owner"
+          "Only owner can call this function."
         );
       });
 
-      it("Shouldn't fail if the unlockTime has arrived and the owner calls it", async function () {
-        const { escrow, owner } = await loadFixture(
+      it("The owner should be able to withdraw.", async function () {
+        const { escrow, ONE_GWEI, owner } = await loadFixture(
           testingFixture
         );
 
-        // Transactions are sent using the first signer by default
+        await escrow.deposit({ value: ONE_GWEI });
+
         await expect(escrow.connect(owner).withdraw()).not.to.be.reverted;
       });
     });
@@ -72,18 +69,20 @@ describe("TimsEscrow", function () {
           testingFixture
         );
 
+        await escrow.deposit({ value: ONE_GWEI });
+
       await expect(escrow.connect(owner).withdraw())
-          .to.emit(escrow, "Withdrawn")
+          .to.emit(escrow, "Withdraw")
           .withArgs(owner, ONE_GWEI); // We accept any value as `when` arg
       });
       it("Should emit an event on deposits", async function() {
-        const { escrow, ONE_GWEI, owner } = await loadFixture(
+        const { escrow, ONE_GWEI, otherAccount } = await loadFixture(
           testingFixture
         );
 
-        await expect(escrow.connect(owner).deposit())
-          .to.emit(escrow, "Deposited")
-          .withArgs(owner, ONE_GWEI); // We accept any value as `when` arg
+        await expect(escrow.connect(otherAccount).deposit({ value: ONE_GWEI }))
+          .to.emit(escrow, "Deposit")
+          .withArgs(otherAccount, ONE_GWEI); // We accept any value as `when` arg
       });
       })
     });

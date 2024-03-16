@@ -12,7 +12,7 @@ contract Escrow {
     mapping(address => uint256) public deposits;
 
     event Deposit(address indexed depositor, uint256 amount);
-    event Withdraw(address indexed depositor, uint256 amount);
+    event Withdraw(address indexed owner, uint256 amount);
 
     constructor() {
         owner = msg.sender;
