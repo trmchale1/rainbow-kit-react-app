@@ -4,17 +4,10 @@
 npm init @rainbow-me/rainbowkit@latest
 ```
 
-I want to extend wallet functionallity in the following ways
+There is an Escrow.sol contract that allows users to deposit, and allows the owner to withdraw the total balance.
 
-1.) Create a contract
-2.) The contract must have a staking feature, a minimum week long waiting period, then an additional signature is required, before the owner (Tim) can withdraw the money put up  
-2.) Deploy the contract (needs deployment functionality) 
-3.) Both the contract and the app need unit tests
+1.) Deploy the contract (needs deployment functionality) 
+2.) Both the contract and the app need unit tests
 
 Complete the tasks above, then integrate this repo into timmchale.co 
 
-To deploy we need to use a library called hardhat.
-
-https://hardhat.org/hardhat-runner/docs/getting-started
-
-Happy Hunting tommorrow!
